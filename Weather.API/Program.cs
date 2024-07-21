@@ -13,7 +13,11 @@ builder.Services.AddSingleton<IWeatherRepository, WeatherRepository>();
 builder.Services.AddHttpClient<IWeatherRepository, WeatherRepository>(client =>
 {
     var config = builder.Configuration;
-    client.BaseAddress = new Uri(config.GetValue<string>("DBUrl")!);
+    client.BaseAddress = new Uri(
+        Environment.GetEnvironmentVariable("DBUrl")
+            ?? config.GetValue<string>("DBUrl")
+            ?? "http://localhost:7227"
+    );
 });
 
 var app = builder.Build();

@@ -25,17 +25,25 @@ public class WeatherRepository(HttpClient httpClient) : IWeatherRepository
 
     public async Task<WeatherForecast[]> GetForecastAsync(DateTime startDate)
     {
-        var response = await httpClient.GetFromJsonAsync<WeatherForecast[]>(
-            $"/database?startDate={startDate:yyyy-MM-dd}",
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-        );
-
-        if (response is null)
+        try
         {
-            return [];
-        }
+            var response = await httpClient.GetFromJsonAsync<WeatherForecast[]>(
+                $"/database?startDate={startDate:yyyy-MM-dd}",
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
 
-        return response;
+            if (response is null)
+            {
+                return [];
+            }
+
+            return response;
+        }
+        catch
+        {
+            Console.WriteLine($"Can't reach {httpClient.BaseAddress}");
+            throw;
+        }
     }
 
     public async Task<WeatherForecast> GetForecastAsync(int id)
