@@ -12,7 +12,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IWeatherRepository, WeatherRepository>();
 builder.Services.AddHttpClient<IWeatherRepository, WeatherRepository>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7227");
+    var config = builder.Configuration;
+    client.BaseAddress = new Uri(config.GetValue<string>("DBUrl")!);
 });
 
 var app = builder.Build();
