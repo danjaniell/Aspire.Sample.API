@@ -22,6 +22,8 @@ builder.Services.AddHttpClient<IWeatherRepository, WeatherRepository>(client =>
 
 var app = builder.Build();
 
+Console.WriteLine($"HttpClient BaseAddress: {app.Services.GetService<HttpClient>().BaseAddress}");
+
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
