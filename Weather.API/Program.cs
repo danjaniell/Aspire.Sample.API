@@ -1,3 +1,6 @@
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
 using Weather.API.Endpoints;
 using Weather.API.Interfaces;
 using Weather.API.Services;
@@ -19,6 +22,31 @@ builder.Services.AddHttpClient<IWeatherRepository, WeatherRepository>(client =>
             ?? "http://localhost:7227"
     );
 });
+
+builder
+    .Services.AddOpenTelemetry()
+    .WithMetrics(metrics =>
+    {
+        metrics
+            .AddRuntimeInstrumentation()
+            .AddMeter(
+                "Microsoft.AspNetCore.Hosting",
+                "Microsoft.AspNetCore.Server.Kestrel",
+                "System.Net.Http"
+            );
+    })
+    .WithTracing(tracing =>
+    {
+        tracing.AddAspNetCoreInstrumentation().AddHttpClientInstrumentation();
+    });
+
+var useOtlpExporter = !string.IsNullOrWhiteSpace(
+    builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]
+);
+if (useOtlpExporter)
+{
+    builder.Services.AddOpenTelemetry().UseOtlpExporter();
+}
 
 var app = builder.Build();
 
